@@ -5,3 +5,4 @@
 - React 18
 - Vite 4
 - TypeScript
+- Less
