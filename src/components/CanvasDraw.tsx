@@ -406,7 +406,7 @@ class CanvasDraw extends React.Component {
       <>
         <Space direction="vertical">
           <canvas ref={this.canvasRef} />
-          <Uploader maxCount={3} onChange={this.handleUpdateImg} />
+          <Uploader maxCount={3} accept='image/jpg' onChange={this.handleUpdateImg} />
           <Flex>
             <Flex.Item span={24}>
               <Button onClick={this.handleSaveImg} type="primary" block>
