@@ -1,0 +1,7 @@
+# 屎包の表情生成工具
+
+> 所用技术
+
+- React 18
+- Vite 4
+- TypeScript
