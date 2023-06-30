@@ -1,8 +1,15 @@
 import React from 'react';
-import { Uploader, UploaderValueItem, Button, Flex, Space } from 'react-vant';
+import {
+  Uploader,
+  UploaderValueItem,
+  Button,
+  Flex,
+  Space,
+  Toast
+} from 'react-vant';
 
-import BaseImg from '../assets/base.jpg';
-import Ikun1 from '../assets/ikun1.png';
+const BaseImg = 'https://s2.loli.net/2023/06/30/jsnZTLi4RK2MbJG.jpg';
+const Ikun1 = 'https://s2.loli.net/2023/06/30/Sq2UilZWzaGuQ5M.png';
 
 interface State {
   nickNameWidth: number;
@@ -133,7 +140,13 @@ class CanvasDraw extends React.Component {
     }
     // 创建头像图片
     const picture = new Image();
+    picture.crossOrigin = 'anonymous';
     picture.src = imgPath;
+    Toast.loading({
+      message: '加载中...',
+      forbidClick: true,
+      duration: 0
+    });
 
     // 图片加载完成后绘制圆角图片
     picture.onload = () => {
@@ -235,10 +248,13 @@ class CanvasDraw extends React.Component {
 
     // 创建表情图
     const memeImg = new Image();
+    memeImg.crossOrigin = 'anonymous';
     memeImg.src = imgPath;
 
     // 渲染表情图
     memeImg.onload = () => {
+      Toast.clear();
+
       let _imgWidth = memeImg.width;
       let _imgHeight = memeImg.height;
 
