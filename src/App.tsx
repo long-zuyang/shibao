@@ -5,6 +5,16 @@ import { version } from '../package.json';
 
 import CanvasDrow from './components/CanvasDraw';
 
+console.log(
+  '%c欢迎使用屎包の表情生成器!',
+  'color:white;background-color:black;padding:12px;border-radius:8px;font-size: 16px;font-family: 微软雅黑;'
+);
+
+console.log(
+  '%c项目开源地址：https://github.com/long-zuyang/shibao',
+  'color:black;border:1px solid;padding:12px;border-radius:8px;font-size: 16px;font-family: 微软雅黑;'
+);
+
 class App extends React.Component {
   render() {
     console.log('Rendering...');

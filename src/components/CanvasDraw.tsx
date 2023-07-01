@@ -5,20 +5,21 @@ import {
   Button,
   Flex,
   Space,
-  Toast
+  Toast,
+  Input,
+  Cell,
+  NoticeBar
 } from 'react-vant';
 
-import { getOS } from '@/utils';
+import { getOS, getCurrentDateTime } from '@/utils';
 
 const BaseImg = 'https://s2.loli.net/2023/06/30/jsnZTLi4RK2MbJG.jpg';
 const Ikun1 = 'https://s2.loli.net/2023/06/30/Sq2UilZWzaGuQ5M.png';
 
 interface State {
-  nickNameWidth: number;
-  nickNameHeight: number;
-  canvas: HTMLCanvasElement | null;
-  ctx: CanvasRenderingContext2D | null;
+  baseImg: string;
   imgPath: string;
+  nickName: string;
 }
 
 interface DrawLength {
@@ -31,12 +32,15 @@ interface DrawLength {
 
 class CanvasDraw extends React.Component {
   state: State = {
-    nickNameWidth: 0,
-    nickNameHeight: 0,
-    canvas: null,
-    ctx: null,
-    imgPath: Ikun1
+    baseImg: BaseImg,
+    imgPath: Ikun1,
+    nickName: '屎包'
   };
+  canvas: HTMLCanvasElement | null = null;
+  ctx: CanvasRenderingContext2D | null = null;
+  nickNameWidth = 0;
+  nickNameHeight = 0;
+  backBaseImg = BaseImg;
 
   drawMemeConfig: DrawLength = {
     maxDrawWidth: 0,
@@ -60,19 +64,17 @@ class CanvasDraw extends React.Component {
       return;
     }
 
-    this.setState({
-      canvas: canvas,
-      ctx: ctx
-    });
+    this.canvas = canvas;
+    this.ctx = ctx;
 
     // 初始化 Canvas
     this.initCanvas(canvas, ctx);
 
     // 渲染圆角头像
-    this.drawRadiusProfilePicture(ctx, BaseImg);
+    this.drawRadiusProfilePicture(ctx, this.state.baseImg);
 
     // 渲染昵称
-    this.drawNickName(ctx, '屎包');
+    this.drawNickName(ctx);
 
     // 渲染表情图
     this.drawMeme(canvas, ctx, this.state.imgPath);
@@ -80,21 +82,32 @@ class CanvasDraw extends React.Component {
     return;
   }
 
-  componentDidUpdate(): void {
-    if (!this.state.canvas) {
-      return;
+  componentDidUpdate(
+    prevProps: Record<string, never>,
+    prevState: State
+  ): boolean {
+    prevProps;
+    if (prevState === this.state) {
+      return false;
     }
-    if (!this.state.ctx) {
-      return;
+    if (!this.canvas) {
+      return false;
     }
-    this.resetCanvas(this.state.ctx);
+    if (!this.ctx) {
+      return false;
+    }
+    this.resetCanvas(this.ctx);
+
+    // 渲染圆角头像
+    this.drawRadiusProfilePicture(this.ctx, this.state.baseImg);
+
+    // // 渲染昵称
+    this.drawNickName(this.ctx);
 
     // console.log('Update');
-    this.drawMeme(
-      this.state.canvas,
-      this.state.ctx,
-      this.state.imgPath
-    ) as DrawLength;
+    this.drawMeme(this.canvas, this.ctx, this.state.imgPath) as DrawLength;
+
+    return true;
   }
 
   /**
@@ -202,30 +215,29 @@ class CanvasDraw extends React.Component {
    * @param context Canvas Context上下文
    * @param nickName 昵称
    */
-  async drawNickName(context: CanvasRenderingContext2D, nickName: string) {
+  drawNickName(context: CanvasRenderingContext2D) {
     if (!context) {
       return 0;
     }
+
     context.font = '16px 微软雅黑';
     // 设置文本基线位置
     context.textBaseline = 'top';
     context.fillStyle = '#b2b2b2';
 
     // 绘制文本
-    context.fillText(nickName, 95, 22);
+    context.fillText(this.state.nickName, 95, 22);
     context.save();
 
     // console.log('Draw NickName');
 
-    const _textWidth = context.measureText(nickName).width;
+    const _textWidth = context.measureText(this.state.nickName).width;
     const _textHeight =
-      context.measureText(nickName).actualBoundingBoxAscent +
-      context.measureText(nickName).actualBoundingBoxDescent;
+      context.measureText(this.state.nickName).actualBoundingBoxAscent +
+      context.measureText(this.state.nickName).actualBoundingBoxDescent;
 
-    await this.setState({
-      nickNameWidth: _textWidth,
-      nickNameHeight: _textHeight
-    });
+    this.nickNameWidth = _textWidth;
+    this.nickNameHeight = _textHeight;
 
     // 返回渲染文本的宽度
     return _textWidth;
@@ -311,21 +323,24 @@ class CanvasDraw extends React.Component {
    * 重置Canvas
    */
   resetCanvas(context: CanvasRenderingContext2D) {
-    const { maxDrawWidth, maxDrawHeight, imgStartX, imgStartY } =
-      this.drawMemeConfig;
+    if (!this.canvas) {
+      return;
+    }
 
-    context.clearRect(imgStartX, imgStartY, maxDrawWidth, maxDrawHeight);
+    const { clientHeight, clientWidth } = this.canvas;
+
+    context.clearRect(0, 0, clientWidth, clientHeight);
     context.save();
 
     context.fillStyle = '#f5f5f5';
-    context.fillRect(imgStartX, imgStartY, maxDrawWidth, maxDrawHeight);
+    context.fillRect(0, 0, clientWidth, clientHeight);
     context.save();
     return;
   }
 
   handleSaveImg = () => {
     // console.log('AAA');
-    const { canvas } = this.state;
+    const { canvas } = this;
     const { contextHeight } = this.drawMemeConfig;
 
     if (!canvas) return;
@@ -371,10 +386,9 @@ class CanvasDraw extends React.Component {
     const dataURL = tempCanvas.toDataURL('image/png');
     const link = document.createElement('a');
 
-    const date = new Date();
-    const fileName = `shibao-${date.getFullYear()}-${
-      date.getMonth() + 1
-    }-${date.getDate()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}-${date.getMilliseconds()}.png`;
+    const { year, month, day, hour, minute, second, millisecond } =
+      getCurrentDateTime();
+    const fileName = `shibao_${year}${month}${day}_${hour}${minute}${second}_${millisecond}.png`;
 
     link.download = fileName;
     link.href = dataURL;
@@ -391,8 +405,19 @@ class CanvasDraw extends React.Component {
       return;
     }
 
+    const _isPpimg = (): string => {
+      if (files.length == 2) {
+        this.backBaseImg = this.state.baseImg;
+        return files[1].url;
+      } else {
+        return this.backBaseImg;
+      }
+    };
+
     this.setState({
-      imgPath: files[0].url
+      imgPath: files[0].url,
+      nickName: this.state.nickName,
+      baseImg: _isPpimg()
     });
   };
 
@@ -413,11 +438,39 @@ class CanvasDraw extends React.Component {
       <>
         <Space direction="vertical">
           <canvas ref={this.canvasRef} />
+          <NoticeBar
+            scrollable
+            background="#f5f5f5"
+            color="#616161"
+            text="上传组件中可上传两张图片，第一张是需要渲染的表情包，第二张是需要渲染的头像"
+          />
           <Uploader
-            maxCount={3}
+            maxCount={2}
             accept="image/jpg"
             onChange={this.handleUpdateImg}
           />
+          <Cell>
+            <Input
+              value={this.state.nickName}
+              suffix={
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={() => {
+                    // 强制渲染
+                    this.forceUpdate();
+                  }}
+                >
+                  手动渲染
+                </Button>
+              }
+              placeholder="请输入需要渲染的昵称"
+              onChange={(val) => {
+                this.setState({ nickName: val });
+              }}
+            />
+          </Cell>
+
           <Flex>
             <Flex.Item span={24}>
               <Button onClick={this.handleSaveImg} type="primary" block>

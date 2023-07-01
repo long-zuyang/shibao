@@ -3,6 +3,8 @@
 > 所用技术
 
 - React 18
+- React Vant
 - Vite 4
 - TypeScript
 - Less
+- Eslint
