@@ -8,6 +8,8 @@ import {
   Toast
 } from 'react-vant';
 
+import { getOS } from '@/utils';
+
 const BaseImg = 'https://s2.loli.net/2023/06/30/jsnZTLi4RK2MbJG.jpg';
 const Ikun1 = 'https://s2.loli.net/2023/06/30/Sq2UilZWzaGuQ5M.png';
 
@@ -207,7 +209,7 @@ class CanvasDraw extends React.Component {
     context.font = '16px 微软雅黑';
     // 设置文本基线位置
     context.textBaseline = 'top';
-    context.fillStyle = '#a6a5a5';
+    context.fillStyle = '#b2b2b2';
 
     // 绘制文本
     context.fillText(nickName, 95, 22);
@@ -240,7 +242,12 @@ class CanvasDraw extends React.Component {
 
     // 计算起始位置
     const _imgStartX = 10 + 75 + 10;
-    const _imgStartY = 18 + 14 + 10;
+    let _imgStartY = 18 + 14 + 10;
+
+    // 解决IOS在渲染图片时间距不足的问题
+    if (getOS() == 'iOS') {
+      _imgStartY += 10;
+    }
 
     // 计算剩下最大的渲染距离
     const _maxDrawWidth = canvas.clientWidth - _imgStartX - 10;
@@ -406,7 +413,11 @@ class CanvasDraw extends React.Component {
       <>
         <Space direction="vertical">
           <canvas ref={this.canvasRef} />
-          <Uploader maxCount={3} accept='image/jpg' onChange={this.handleUpdateImg} />
+          <Uploader
+            maxCount={3}
+            accept="image/jpg"
+            onChange={this.handleUpdateImg}
+          />
           <Flex>
             <Flex.Item span={24}>
               <Button onClick={this.handleSaveImg} type="primary" block>
