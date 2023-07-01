@@ -376,7 +376,7 @@ class CanvasDraw extends React.Component {
       0,
       0,
       canvas.width,
-      contextHeight * 3,
+      contextHeight * window.devicePixelRatio || 1,
       0,
       0,
       tempCanvas.clientWidth,
@@ -395,7 +395,6 @@ class CanvasDraw extends React.Component {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     document.body.removeChild(tempCanvas);
   };
 
