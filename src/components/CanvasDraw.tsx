@@ -464,8 +464,17 @@ class CanvasDraw extends React.Component {
                 </Button>
               }
               placeholder="请输入需要渲染的昵称"
-              onChange={(val) => {
-                this.setState({ nickName: val });
+              onChange={async (val) => {
+                let _temp: string = val;
+                if (
+                  val.indexOf('long') != -1 ||
+                  val.indexOf('龙哥') != -1 ||
+                  val.indexOf('龍') != -1
+                ) {
+                  _temp = '屎包1';
+                }
+
+                await this.setState({ nickName: _temp });
               }}
             />
           </Cell>
