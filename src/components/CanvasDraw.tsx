@@ -471,7 +471,7 @@ class CanvasDraw extends React.Component {
                   val.indexOf('龙哥') != -1 ||
                   val.indexOf('龍') != -1
                 ) {
-                  _temp = '屎包1';
+                  _temp = '屎包';
                 }
 
                 await this.setState({ nickName: _temp });
